@@ -80,9 +80,3 @@ export type PAGINATION = {
   pageNum?: number
   pageSize?: number
 }
-
-// 搜索参数
-export type SEARCH_PARAMS = PAGINATION & {
-  name?: string
-  status?: number
-}

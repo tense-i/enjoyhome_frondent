@@ -325,7 +325,6 @@ const handleFail = ({ file }) => {
 }
 // 上传成功后触发。
 const handleSuccess = (params) => {
-  debugger
   console.log(params)
   const photo = params.response.data
   formData.value.image = photo

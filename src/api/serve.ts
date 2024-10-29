@@ -7,8 +7,9 @@ import type {
   ProjecListModel,
   PlanListModel,
   ListArrangeResult,
-  ResponseData
+  ResponseDataInPagination
 } from '@/api/model/serveModel'
+import type { NetResponseType } from '@/api/model/common'
 
 // 获取护理等级所有数据
 export function getLevelAllList(params) {
@@ -72,11 +73,12 @@ export function getAllProjectList() {
  */
 export function getNurseProjectListApi(params) {
   console.log(params)
-  return request.get<ResponseData<ProjecListModel>>({
+  return request.get<ResponseDataInPagination<ProjecListModel>>({
     url: `/nursing_project`,
     params
   })
 }
+
 // 获取护理项目详情
 export function getProjectDetails(id) {
   return request.get<ProjecListModel>({
@@ -84,8 +86,8 @@ export function getProjectDetails(id) {
   })
 }
 // 护理项目添加
-export function projectAdd(params: FormLevel) {
-  return request.post<ProjecListModel>({
+export function projectAdd(params) {
+  return request.post<NetResponseType<ProjecListModel>>({
     url: '/nursing_project',
     data: params
   })

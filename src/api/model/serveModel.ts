@@ -1,3 +1,5 @@
+import type { PaginationType } from '@/api/model/common'
+
 // 列表
 export interface ListResult {
   data: any[]
@@ -46,6 +48,12 @@ export interface page {
   total: number
 }
 
+// 搜索参数
+export type SEARCH_PARAMS = PaginationType & {
+  name?: string
+  status?: number
+}
+
 /**
  * 护理项目列表Model
  */
@@ -68,7 +76,7 @@ export interface ProjecListModel {
 /**
  * 分页响应参数
  */
-export interface ResponseData<T> {
+export interface ResponseDataInPagination<T> {
   code: number
   data: {
     page: number
