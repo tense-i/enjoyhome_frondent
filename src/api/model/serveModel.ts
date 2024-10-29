@@ -64,6 +64,32 @@ export interface ProjecListModel {
   updateBy: number // 更新人
   updateTime: string // 更新时间
 }
+
+/**
+ * 分页响应参数
+ */
+export interface ResponseData<T> {
+  code: number
+  data: {
+    page: number
+    pages: string
+    records: Array<T>
+    pageSize: number
+    total: string
+  }
+  message: string
+}
+
+/**
+ * 护理项目列表返回值
+ */
+export interface NurseProjectListResult {
+  data: any[]
+  list: Array<ProjecListModel>
+  page: page
+  total: number
+}
+
 // 护理计划列表
 export interface PlanListResult {
   data: any[]

@@ -6,7 +6,8 @@ import type {
   ListModel,
   ProjecListModel,
   PlanListModel,
-  ListArrangeResult
+  ListArrangeResult,
+  ResponseData
 } from '@/api/model/serveModel'
 
 // 获取护理等级所有数据
@@ -69,8 +70,9 @@ export function getAllProjectList() {
  * @param params
  * @returns
  */
-export function getProjectList(params) {
-  return request.get<ProjecListModel>({
+export function getNurseProjectListApi(params) {
+  console.log(params)
+  return request.get<ResponseData<ProjecListModel>>({
     url: `/nursing_project`,
     params
   })
