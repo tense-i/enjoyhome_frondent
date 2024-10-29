@@ -1,36 +1,39 @@
 <script setup lang="ts">
+import { ref, watch } from 'vue'
 import { COLUMNS } from '../constants'
+import type { ProjecListModel } from '@/api/model/serveModel'
+import type { PaginationType } from '@/api/model/common'
 
 // 行的key
 const rowKey = 'index'
 
-const props = defineProps({
-  data: {
-    type: Object,
-    default: () => {
-      return {}
-    }
-  },
-  // 总条数
-  total: {
-    type: Number,
-    default: 0
-  },
-  pagination: {
-    type: Object,
-    default: () => {
-      return {}
-    }
-  },
-  // 加载状态
-  dataLoading: {
-    type: Boolean,
-    default: false
-  }
-})
+const props = defineProps<{
+  data: ProjecListModel[]
+  total: number
+  pagination: PaginationType
+  dataLoading: boolean
+}>()
 
-// 声明方法
-const emit = defineEmits(['onPageChange', 'handleBulid'])
+// 创建一个本地副本
+const localPagination = ref({ ...props.pagination })
+
+// 监听 props 的变化并更新本地副本
+watch(
+  () => props.pagination,
+  (newVal) => {
+    localPagination.value = { ...newVal }
+  },
+  { deep: true }
+)
+
+// 声明emit事件及参数类型
+const emit = defineEmits<{
+  (e: 'onPageChange', val: any): void
+  (e: 'handleBulid'): void
+  (e: 'handleDelete', row: ProjecListModel): void
+  (e: 'handleEdit', row: ProjecListModel): void
+  (e: 'handleForbidden', row: ProjecListModel): void
+}>()
 
 // 点击翻页
 const onPageChange = (val) => {
@@ -38,25 +41,36 @@ const onPageChange = (val) => {
 }
 
 const isDecimals = (val) => {
-  if (String(val).indexOf('.') > -1) {
-    return true
-  }
-  return false
+  return String(val).indexOf('.') > -1
 }
 
 // 新增护理项目
 const handleBulid = () => {
   emit('handleBulid')
 }
+
+// 删除护理项目
+const handleDelete = (row) => {
+  emit('handleDelete', row)
+}
+
+// 编辑护理项目
+const handleEdit = (row) => {
+  emit('handleEdit', row)
+}
+
+// 禁用护理项目
+const handleForbidden = (row) => {
+  emit('handleForbidden', row)
+}
 </script>
 
 <template>
   <div class="newBox">
-    <button class="bt wt-120" @click="handleBulid()">新增护理项目</button>
+    <button class="bt wt-120" @click="handleBulid">新增护理项目</button>
   </div>
   <div class="baseList">
     <div class="tableBoxs">
-      <!-- 当数据为空需要占位时，会显示 cellEmptyContent -->
       <t-table
         :data="data"
         :columns="COLUMNS"
@@ -67,11 +81,9 @@ const handleBulid = () => {
         table-layout="fixed"
         table-content-width="100%"
       >
-        <!-- 处理序号 -->
         <template #rowIndex="{ rowIndex }">
           {{ rowIndex + 1 }}
         </template>
-        <!-- 图片预览及展示 -->
         <template #image="{ row }">
           <div class="tdesign-demo-image-viewer__base">
             <t-image-viewer :images="[row.image]">
@@ -93,23 +105,22 @@ const handleBulid = () => {
             </t-image-viewer>
           </div>
         </template>
-        <!-- 价格拼接 -->
         <template #price="{ row }">
           {{ isDecimals(row.price) ? row.price : row.price + '.00' }}
         </template>
-        <!-- 操作栏 -->
         <template #op="{ row }">
           <div class="operateCon">
-            <a class="btn-dl">删除</a>
-            <a class="font-bt">编辑</a>
-            <a class="delete">禁用</a>
+            <a class="btn-dl" @click="handleDelete(row)">删除</a>
+            <a class="font-bt" @click="handleEdit(row)">编辑</a>
+            <a class="delete" @click="handleForbidden(row)">禁用</a>
           </div>
         </template>
       </t-table>
+
       <t-pagination
         v-if="total > 10"
-        v-model:current="pagination.pageNum"
-        v-model:pageSize="pagination.pageSize"
+        v-model:current="localPagination.pageNum"
+        v-model:pageSize="localPagination.pageSize"
         :total="total"
         @change="onPageChange"
       />
@@ -117,9 +128,8 @@ const handleBulid = () => {
   </div>
 </template>
 
-<style scoped lang="scss">
+<style scoped lang="css">
 .newBox {
-  // 向下留白
   margin-bottom: 10px;
 }
 </style>
