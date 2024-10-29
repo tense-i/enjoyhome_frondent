@@ -30,7 +30,7 @@ const props = defineProps({
 })
 
 // 声明方法
-const emit = defineEmits(['onPageChange'])
+const emit = defineEmits(['onPageChange', 'handleBulid'])
 
 // 点击翻页
 const onPageChange = (val) => {
@@ -43,9 +43,17 @@ const isDecimals = (val) => {
   }
   return false
 }
+
+// 新增护理项目
+const handleBulid = () => {
+  emit('handleBulid')
+}
 </script>
 
 <template>
+  <div class="newBox">
+    <button class="bt wt-120" @click="handleBulid()">新增护理项目</button>
+  </div>
   <div class="baseList">
     <div class="tableBoxs">
       <!-- 当数据为空需要占位时，会显示 cellEmptyContent -->
@@ -108,3 +116,10 @@ const isDecimals = (val) => {
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+.newBox {
+  // 向下留白
+  margin-bottom: 10px;
+}
+</style>
