@@ -2,7 +2,7 @@ export interface UserListResult {
   code: number
   msg: string
   data: {
-[x: string]: {}
+    [x: string]: {}
     icon: string
     id: string
     name: string

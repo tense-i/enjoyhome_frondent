@@ -63,7 +63,12 @@ export function getAllProjectList() {
     url: `/nursing_project/all`
   })
 }
-// 分页查询护理项目信息
+
+/**
+ * 护理项目列表
+ * @param params
+ * @returns
+ */
 export function getProjectList(params) {
   return request.get<ProjecListModel>({
     url: `/nursing_project`,

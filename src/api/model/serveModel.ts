@@ -45,20 +45,24 @@ export interface page {
   pages: number
   total: number
 }
+
+/**
+ * 护理项目列表Model
+ */
 export interface ProjecListModel {
-  createBy: number
-  createTime: string
-  creator: string
-  id: number
-  image: string
-  name: string
-  nursingRequirement: string
-  orderNo: number
-  price: number
-  status: number
-  unit: string
-  updateBy: number
-  updateTime: string
+  createBy: number // 创建人
+  createTime: string // 创建时间
+  creator: string // 创建人
+  id: number // 主键
+  image: string // 图片
+  name: string // 名称
+  nursingRequirement: string // 护理要求
+  orderNo: number // 排序
+  price: number // 价格
+  status: number // 状态
+  unit: string // 单位
+  updateBy: number // 更新人
+  updateTime: string // 更新时间
 }
 // 护理计划列表
 export interface PlanListResult {
