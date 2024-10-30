@@ -26,17 +26,23 @@
     <!-- 新增，编辑弹窗 -->
     <DialogFrom
       ref="formRef"
+      :data="formBaseData"
       :visible="visible"
       :title="title"
       @handleClose="handleClose"
-      @handleAdd="handleAdd"
+      @handleAddSubmit="handleAddSubmit"
+      @handleEditSubmit="handleEditSubmit"
     />
     <!-- end -->
     <!-- 删除弹层 -->
-    <Delete></Delete>
-    <!-- end -->
-    <!-- 禁用弹层 -->
-    <Forbidden></Forbidden>
+    <CheckDialog
+      :visible="operationDlgVisible"
+      :title="operationTitle"
+      :body="operationBody"
+      @handleOperationDlgClose="handleOperationDlgClose"
+      @handleOperationDlgCancel="handleOperationDlgCancel"
+      @handleOperationConfirm="handleOperationConfirm"
+    ></CheckDialog>
     <!-- end -->
   </div>
 </template>
@@ -47,8 +53,17 @@ import { MessagePlugin } from 'tdesign-vue-next'
 import SearchFormBox from './components/SearchFrom.vue'
 import TableList from './components/TableList.vue'
 import DialogFrom from './components/DialogForm.vue'
-import { getNurseProjectListApi, projectAdd } from '@/api/serve'
+import CheckDialog from './components/CheckDialog.vue'
+import {
+  getNurseProjectListApi,
+  projectAddApi,
+  projectUpdateApi,
+  projectDeleteApi,
+  projectStatusApi,
+  getProjectDetailsApi
+} from '@/api/serve'
 import type { ProjecListModel, SEARCH_PARAMS } from '@/api/model/serveModel'
+import type { NetResponseType } from '@/api/model/common'
 /**
  * 搜索参数
  * @attention searchData没有限定类型、可能会在前端传递中进行修改。
@@ -122,7 +137,6 @@ function onPageChange(data: any) {
  * 获取护理项目列表
  */
 const getNurseProjectList = async (val: SEARCH_PARAMS) => {
-  debugger
   try {
     dataLoading.value = true
     const res = await getNurseProjectListApi(val)
@@ -152,31 +166,125 @@ const handleClose = () => {
 defineExpose({
   handleClear
 })
-// 新增护理项目
-const handleAdd = async (params: any) => {
-  console.log(params)
-  const res = await projectAdd(params)
-  console.log(res)
-  if (res.code === 200) {
-    MessagePlugin.success('新增成功')
-    getNurseProjectList(searchData.value)
-    handleClose()
-    formRef.value.handleClear()
-  } else {
-    MessagePlugin.error(res.message)
-  }
+
+/**
+ * 获取对话框标题
+ * @param i 索引
+ * @returns 标题
+ */
+const getDialogTitile = (i: number) => {
+  const TYPETITLE = ['新增', '编辑', '删除', '禁用', '启用']
+  return TYPETITLE[i] || '新增'
 }
 
 // 删除护理项目
-const handleDelete = (row: any) => {
-  console.log(row)
+const handleDelete = (id: number, name: string) => {
+  operationDlgVisible.value = true
+  operationTitle.value = getDialogTitile(3)
+  operationId.value = id
+  operationName.value = name
+  operationBody.value = `该操作将删除${name}，是否继续？`
 }
+
+const formBaseData = ref<ProjecListModel>({} as ProjecListModel)
 // 编辑护理项目
-const handleEdit = (row: any) => {
-  console.log(row)
+const handleEdit = async (id: number) => {
+  console.log(id)
+  visible.value = true
+  title.value = getDialogTitile(1)
+  await getProjectDetails(id)
+}
+
+const getProjectDetails = async (id: number): Promise<void> => {
+  const res = await getProjectDetailsApi(id)
+  console.log(res)
+  if (res.code === 200) {
+    formBaseData.value = res.data
+  }
 }
 // 禁用护理项目
-const handleForbidden = (row: any) => {
-  console.log(row)
+const handleForbidden = (nursingProject: ProjecListModel) => {
+  operationDlgVisible.value = true
+  if (nursingProject.status === 1) {
+    operationTitle.value = getDialogTitile(2)
+  } else {
+    operationTitle.value = getDialogTitile(4)
+  }
+  operationId.value = nursingProject.id
+  operationName.value = nursingProject.name
+  operationBody.value = `该操作将${operationTitle.value}${nursingProject.name}，是否继续？`
+}
+
+const handleCheckUpdateResponse = (
+  res: NetResponseType<ProjecListModel>,
+  successMsg: string
+) => {
+  if (res.code === 200) {
+    MessagePlugin.success(successMsg)
+    getNurseProjectList(searchData.value)
+    handleClose()
+    formRef.value.handleClear()
+    return true
+  }
+  MessagePlugin.error(res.message)
+  return false
+}
+// 新增提交
+const handleAddSubmit = async (params: ProjecListModel) => {
+  console.log(params)
+  const res = await projectAddApi(params)
+  console.log(res)
+  handleCheckUpdateResponse(res, '新增成功')
+}
+// 编辑提交
+const handleEditSubmit = async (params: ProjecListModel) => {
+  console.log(params)
+  const res = await projectUpdateApi(params)
+  console.log(res)
+  handleCheckUpdateResponse(res, '编辑成功')
+}
+
+// 删除弹窗
+const operationDlgVisible = ref(false)
+const operationTitle = ref('')
+const operationBody = ref('')
+const operationId = ref(0)
+const operationName = ref('')
+
+const handleOperationDlgClose = () => {
+  operationDlgVisible.value = false
+  operationTitle.value = ''
+  operationBody.value = ''
+  operationId.value = 0
+  operationName.value = ''
+}
+
+const handleOperationDlgCancel = () => {
+  operationDlgVisible.value = false
+}
+
+const handleOperationConfirm = async () => {
+  if (operationTitle.value === getDialogTitile(3)) {
+    handleNursingProjectDelete(operationId.value)
+  } else if (
+    operationTitle.value === getDialogTitile(2) ||
+    operationTitle.value === getDialogTitile(4)
+  ) {
+    await handleNursingProjectForbidden(operationId.value)
+  }
+  handleOperationDlgClose()
+}
+// 删除
+const handleNursingProjectDelete = async (id: number) => {
+  console.log(operationTitle.value, id)
+  const res = await projectDeleteApi(id)
+  handleCheckUpdateResponse(res, '删除成功')
+}
+// 禁用
+const handleNursingProjectForbidden = async (id: number) => {
+  console.log(operationTitle.value, id)
+  const status = operationTitle.value === getDialogTitile(2) ? 0 : 1
+  const res = await projectStatusApi({ id, status })
+  handleCheckUpdateResponse(res, `${operationTitle.value}成功`)
 }
 </script>

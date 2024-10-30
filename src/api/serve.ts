@@ -60,7 +60,7 @@ export function levelStatus(params) {
 
 // 护理项目
 // 所有护理项目信息
-export function getAllProjectList() {
+export function getAllProjectListApi() {
   return request.get<ProjecListModel>({
     url: `/nursing_project/all`
   })
@@ -79,14 +79,18 @@ export function getNurseProjectListApi(params) {
   })
 }
 
-// 获取护理项目详情
-export function getProjectDetails(id) {
-  return request.get<ProjecListModel>({
+/**
+ * 获取护理项目详情
+ * @param id
+ * @returns
+ */
+export function getProjectDetailsApi(id) {
+  return request.get<NetResponseType<ProjecListModel>>({
     url: `/nursing_project/${id}`
   })
 }
 // 护理项目添加
-export function projectAdd(params) {
+export function projectAddApi(params) {
   return request.post<NetResponseType<ProjecListModel>>({
     url: '/nursing_project',
     data: params
@@ -99,14 +103,21 @@ export function projectUpdate(params: ProjecListModel) {
     data: params
   })
 }
+// 护理项目更新
+export function projectUpdateApi(params: ProjecListModel) {
+  return request.put<NetResponseType<ProjecListModel>>({
+    url: `/nursing_project`,
+    data: params
+  })
+}
 // 护理项目删除
-export function projectDelete(id) {
+export function projectDeleteApi(id) {
   return request.delete({
     url: `/nursing_project/${id}`
   })
 }
 // 护理项目禁用启用
-export function projectStatus(params) {
+export function projectStatusApi(params) {
   return request.put({
     url: `/nursing_project/${params.id}/status/${params.status}`
   })

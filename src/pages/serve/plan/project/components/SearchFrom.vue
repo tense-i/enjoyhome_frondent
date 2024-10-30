@@ -81,8 +81,6 @@ const handleReset = () => {
 
 // 搜索
 const handleSearch = (val: SEARCH_PARAMS) => {
-  debugger
-  console.log(val)
   emits('handleSearch', val)
 }
 

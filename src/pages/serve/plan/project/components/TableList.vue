@@ -30,9 +30,9 @@ watch(
 const emit = defineEmits<{
   (e: 'onPageChange', val: any): void
   (e: 'handleBulid'): void
-  (e: 'handleDelete', row: ProjecListModel): void
-  (e: 'handleEdit', row: ProjecListModel): void
-  (e: 'handleForbidden', row: ProjecListModel): void
+  (e: 'handleDelete', id: number, name: string): void
+  (e: 'handleEdit', id: number): void
+  (e: 'handleForbidden', nursingProject: ProjecListModel): void
 }>()
 
 // 点击翻页
@@ -50,18 +50,18 @@ const handleBulid = () => {
 }
 
 // 删除护理项目
-const handleDelete = (row) => {
-  emit('handleDelete', row)
+const handleDelete = (id: number, name: string) => {
+  emit('handleDelete', id, name)
 }
 
 // 编辑护理项目
-const handleEdit = (row) => {
-  emit('handleEdit', row)
+const handleEdit = (id: number) => {
+  emit('handleEdit', id)
 }
 
 // 禁用护理项目
-const handleForbidden = (row) => {
-  emit('handleForbidden', row)
+const handleForbidden = (nursingProject: ProjecListModel) => {
+  emit('handleForbidden', nursingProject)
 }
 </script>
 
@@ -110,9 +110,14 @@ const handleForbidden = (row) => {
         </template>
         <template #op="{ row }">
           <div class="operateCon">
-            <a class="btn-dl" @click="handleDelete(row)">删除</a>
-            <a class="font-bt" @click="handleEdit(row)">编辑</a>
-            <a class="delete" @click="handleForbidden(row)">禁用</a>
+            <a class="btn-dl" @click="handleDelete(row.id, row.name)">删除</a>
+            <a class="font-bt" @click="handleEdit(row.id)">编辑</a>
+            <a
+              class="delete"
+              :class="row.status === 1 ? 'btn-dl' : 'font-bt'"
+              @click="handleForbidden(row)"
+              >{{ row.status === 1 ? '禁用' : '启用' }}</a
+            >
           </div>
         </template>
       </t-table>

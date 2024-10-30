@@ -114,8 +114,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, PropType } from 'vue'
 import { MessagePlugin, ValidateResultContext } from 'tdesign-vue-next'
+import type { ProjecListModel } from '@/api/model/serveModel'
 // 基础数据
 import { statusData } from '@/utils/commonData'
 // 获取父组件值、方法
@@ -127,9 +128,9 @@ const props = defineProps({
   },
   //   详情数据
   data: {
-    type: Object,
+    type: Object as PropType<ProjecListModel>,
     default: () => {
-      return {}
+      return {} as ProjecListModel
     }
   },
   // 最小值
@@ -148,17 +149,17 @@ const props = defineProps({
 const emit: Function = defineEmits([
   'handleClose',
   'fetchData',
-  'handleAdd',
-  'handleEdit'
+  'handleEditSubmit',
+  'handleAddSubmit'
 ])
 const resetType = ref('empty') // 重置表单
 const form = ref() // 表单
 const formVisible = ref(false) // 弹窗
 // 表单数据
-const formData = ref<Object | any>({
+const formData = ref<ProjecListModel>({
   status: 1,
   orderNo: 1
-})
+} as ProjecListModel)
 const autoUpload = ref(true) // 是否在选择文件后自动发起请求上传文件
 const photoFile = ref([]) // 绑定上传的文件
 const sizeLimit = ref({
@@ -258,7 +259,6 @@ watch(
 watch(
   () => props.data,
   (val) => {
-    debugger
     formData.value = val
     const obj = {
       url: val.image
@@ -272,10 +272,10 @@ const onSubmit = (result: ValidateResultContext<FormData>) => {
   if (result.validateResult === true) {
     if (props.title === '新增') {
       // 调用新增接口
-      emit('handleAdd', formData.value)
+      emit('handleAddSubmit', formData.value)
     } else {
       // 调用编辑接口
-      emit('handleEdit', formData.value)
+      emit('handleEditSubmit', formData.value)
     }
   }
 }
@@ -305,7 +305,7 @@ const textBlurNo = () => {
 // 当前输入的金额小于0的时候显示0.00
 const minPrice = (val) => {
   if (val < 0) {
-    formData.value.fee = '0.00'
+    formData.value.price = 0.0
   }
 }
 // 当前输入的排序小于等于1的时候显示1
@@ -339,6 +339,7 @@ const beforeUpload = (file) => {
   }
   return true
 }
+
 // 向父组件暴露数据与方法
 defineExpose({
   handleClear
